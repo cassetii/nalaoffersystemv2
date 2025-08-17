@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+    <title>Nala Aircon - Manajemen Proyek Penawaran</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Nala Aircon</h1>
+                <p>Sistem Manajemen Proyek Penawaran</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="card">
+                    <h3>Pengaturan Margin</h3>
+                    <div class="margin-controls">
+                        <div class="input-group">
+                            <label for="defaultMarkup">Default Markup (%):</label>
+                            <input type="number" id="defaultMarkup" value="30" min="0" max="100" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label for="profitMargin">Margin Keuntungan (%):</label>
+                            <input type="number" id="profitMargin" value="15" min="0" max="100" step="0.1">
+                        </div>
+                        <button id="applyMargins" class="btn btn-primary">Terapkan Margin</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Tambah Material Baru</h3>
+                    <div class="add-material-form">
+                        <input type="text" id="materialName" placeholder="Nama Material">
+                        <input type="number" id="materialPrice" placeholder="Harga Real (Rp)" step="0.01">
+                        <input type="text" id="materialUnit" placeholder="Unit (pcs, meter, dll)">
+                        <button id="addMaterial" class="btn btn-success">Tambah Material</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Materials Table -->
+            <div class="card">
+                <h3>Daftar Material & Harga</h3>
+                <div class="table-container">
+                    <table id="materialsTable">
+                        <thead>
+                            <tr>
+                                <th>Nama Material</th>
+                                <th>Unit</th>
+                                <th>Harga Real (Rp)</th>
+                                <th>Markup (%)</th>
+                                <th>Harga Markup (Rp)</th>
+                                <th>Profit Margin (%)</th>
+                                <th>Harga Final (Rp)</th>
+                                <th>Keuntungan (Rp)</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialsTableBody">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="card chart-card">
+                    <h3>Perbandingan Harga Real vs Markup</h3>
+                    <canvas id="priceComparisonChart"></canvas>
+                </div>
+
+                <div class="card chart-card">
+                    <h3>Analisis Keuntungan</h3>
+                    <canvas id="profitAnalysisChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="card">
+                <h3>Ringkasan Proyek</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="label">Total Harga Real:</span>
+                        <span class="value" id="totalRealPrice">Rp 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Harga Markup:</span>
+                        <span class="value" id="totalMarkupPrice">Rp 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Harga Final:</span>
+                        <span class="value" id="totalFinalPrice">Rp 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Keuntungan:</span>
+                        <span class="value" id="totalProfit">Rp 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export/Import -->
+            <div class="card">
+                <h3>Data Management</h3>
+                <div class="data-management">
+                    <button id="exportData" class="btn btn-secondary">Export Data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                    <button id="importData" class="btn btn-secondary">Import Data</button>
+                    <button id="clearData" class="btn btn-danger">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Config -->
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./script.js"></script>
+</body>
+
+</html>
