@@ -6,68 +6,795 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
     <title>Nala Aircon - Manajemen Proyek Penawaran</title>
-    <link rel="stylesheet" href="./style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --hover-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            --border-radius: 16px;
+            --text-primary: #2d3436;
+            --text-secondary: #636e72;
+            --bg-primary: #f8f9fa;
+            --bg-card: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.7;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            animation: slideInUp 0.8s ease-out 0.2s both;
+        }
+
+        .header .version-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--success-gradient);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .main-content {
+            display: grid;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-gradient);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .card h3 {
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card h3 i {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.2rem;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .settings-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .add-material-card {
+            background: linear-gradient(135deg, rgba(74, 201, 255, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+        }
+
+        .margin-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group input, .add-material-form input {
+            padding: 14px 18px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .input-group input:focus, .add-material-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .add-material-form {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+            gap: 20px;
+            align-items: end;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(74, 201, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--dark-gradient);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(44, 62, 80, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            border-radius: 8px;
+        }
+
+        .btn-edit {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            background: var(--bg-card);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            font-weight: 700;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            transform: scale(1.01);
+        }
+
+        .editable {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: 90px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .editable:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .chart-card {
+            min-height: 450px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(20px);
+        }
+
+        .chart-card canvas {
+            max-height: 380px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            border-radius: 16px;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .summary-item:hover::before {
+            opacity: 0.1;
+        }
+
+        .summary-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .summary-item:nth-child(1) { border-left-color: #667eea; }
+        .summary-item:nth-child(2) { border-left-color: #4facfe; }
+        .summary-item:nth-child(3) { border-left-color: #fa709a; }
+        .summary-item:nth-child(4) { border-left-color: #fee140; }
+
+        .summary-item .label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-item .value {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .data-management {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(102, 126, 234, 0.2);
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, rgba(74, 201, 255, 0.2) 0%, rgba(0, 242, 254, 0.2) 100%);
+            border: 2px solid rgba(74, 201, 255, 0.3);
+            color: #0066cc;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(245, 87, 108, 0.2) 100%);
+            border: 2px solid rgba(240, 147, 251, 0.3);
+            color: #cc0066;
+        }
+
+        .message.info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            color: #5533cc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .margin-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+            }
+
+            .add-material-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-management {
+                flex-direction: column;
+            }
+
+            .floating-action {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            th, td {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-gradient);
+        }
+
+        /* Glassmorphism effects */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Interactive elements */
+        .interactive:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Modern input styles */
+        .modern-input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .modern-input:focus {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-color: #667eea !important;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
-        <header>
-            <div class="header-content">
-                <h1>Nala Aircon</h1>
-                <p>Sistem Manajemen Proyek Penawaran</p>
+        <header class="header">
+            <div class="version-badge">
+                <i class="fas fa-star"></i> v2.0
             </div>
+            <h1><i class="fas fa-snowflake"></i> Nala Aircon</h1>
+            <p><i class="fas fa-chart-line"></i> Sistem Manajemen Proyek Penawaran Modern</p>
         </header>
 
         <div class="main-content">
             <!-- Control Panel -->
             <div class="control-panel">
-                <div class="card">
-                    <h3>Pengaturan Margin</h3>
+                <div class="card settings-card">
+                    <h3><i class="fas fa-cogs"></i> Pengaturan Margin</h3>
                     <div class="margin-controls">
                         <div class="input-group">
-                            <label for="defaultMarkup">Default Markup (%):</label>
-                            <input type="number" id="defaultMarkup" value="30" min="0" max="100" step="0.1">
+                            <label for="defaultMarkup"><i class="fas fa-percent"></i> Default Markup:</label>
+                            <input type="number" id="defaultMarkup" value="30" min="0" max="100" step="0.1" class="modern-input">
                         </div>
                         <div class="input-group">
-                            <label for="profitMargin">Margin Keuntungan (%):</label>
-                            <input type="number" id="profitMargin" value="15" min="0" max="100" step="0.1">
+                            <label for="profitMargin"><i class="fas fa-chart-pie"></i> Margin Keuntungan:</label>
+                            <input type="number" id="profitMargin" value="15" min="0" max="100" step="0.1" class="modern-input">
                         </div>
-                        <button id="applyMargins" class="btn btn-primary">Terapkan Margin</button>
+                        <button id="applyMargins" class="btn btn-primary">
+                            <i class="fas fa-magic"></i> Terapkan Margin
+                        </button>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3>Tambah Material Baru</h3>
+                <div class="card add-material-card">
+                    <h3><i class="fas fa-plus-circle"></i> Tambah Material Baru</h3>
                     <div class="add-material-form">
-                        <input type="text" id="materialName" placeholder="Nama Material">
-                        <input type="number" id="materialPrice" placeholder="Harga Real (Rp)" step="0.01">
-                        <input type="text" id="materialUnit" placeholder="Unit (pcs, meter, dll)">
-                        <button id="addMaterial" class="btn btn-success">Tambah Material</button>
+                        <input type="text" id="materialName" placeholder="Nama Material" class="modern-input">
+                        <input type="number" id="materialPrice" placeholder="Harga Real (Rp)" step="0.01" class="modern-input">
+                        <input type="text" id="materialUnit" placeholder="Unit (pcs, meter, dll)" class="modern-input">
+                        <button id="addMaterial" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Tambah
+                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- Materials Table -->
             <div class="card">
-                <h3>Daftar Material & Harga</h3>
+                <h3><i class="fas fa-table"></i> Daftar Material & Harga</h3>
                 <div class="table-container">
                     <table id="materialsTable">
                         <thead>
                             <tr>
-                                <th>Nama Material</th>
-                                <th>Unit</th>
-                                <th>Harga Real (Rp)</th>
-                                <th>Markup (%)</th>
-                                <th>Harga Markup (Rp)</th>
-                                <th>Profit Margin (%)</th>
-                                <th>Harga Final (Rp)</th>
-                                <th>Keuntungan (Rp)</th>
-                                <th>Aksi</th>
+                                <th><i class="fas fa-tag"></i> Nama Material</th>
+                                <th><i class="fas fa-ruler"></i> Unit</th>
+                                <th><i class="fas fa-money-bill"></i> Harga Real</th>
+                                <th><i class="fas fa-percentage"></i> Markup (%)</th>
+                                <th><i class="fas fa-arrow-up"></i> Harga Markup</th>
+                                <th><i class="fas fa-chart-pie"></i> Profit (%)</th>
+                                <th><i class="fas fa-dollar-sign"></i> Harga Final</th>
+                                <th><i class="fas fa-coins"></i> Keuntungan</th>
+                                <th><i class="fas fa-tools"></i> Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="materialsTableBody">
-                            <!-- Data will be populated here -->
+                            <!-- Sample data for demo -->
+                            <tr>
+                                <td>AC Split 1 PK</td>
+                                <td>unit</td>
+                                <td>Rp 2.500.000</td>
+                                <td><input type="number" class="editable" value="30" min="0" max="1000" step="0.1"></td>
+                                <td>Rp 3.250.000</td>
+                                <td><input type="number" class="editable" value="15" min="0" max="1000" step="0.1"></td>
+                                <td>Rp 3.737.500</td>
+                                <td>Rp 1.237.500</td>
+                                <td>
+                                    <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pipa Tembaga 1/2"</td>
+                                <td>meter</td>
+                                <td>Rp 85.000</td>
+                                <td><input type="number" class="editable" value="25" min="0" max="1000" step="0.1"></td>
+                                <td>Rp 106.250</td>
+                                <td><input type="number" class="editable" value="15" min="0" max="1000" step="0.1"></td>
+                                <td>Rp 122.188</td>
+                                <td>Rp 37.188</td>
+                                <td>
+                                    <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Freon R32</td>
+                                <td>kg</td>
+                                <td>Rp 120.000</td>
+                                <td><input type="number" class="editable" value="35" min="0" max="1000" step="0.1"></td>
+                                <td>Rp 162.000</td>
+                                <td><input type="number" class="editable" value="15" min="0" max="1000" step="0.1"></td>
+                                <td>Rp 186.300</td>
+                                <td>Rp 66.300</td>
+                                <td>
+                                    <button class="btn btn-edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -76,55 +803,318 @@
             <!-- Charts Section -->
             <div class="charts-section">
                 <div class="card chart-card">
-                    <h3>Perbandingan Harga Real vs Markup</h3>
+                    <h3><i class="fas fa-chart-bar"></i> Perbandingan Harga Real vs Markup</h3>
                     <canvas id="priceComparisonChart"></canvas>
                 </div>
 
                 <div class="card chart-card">
-                    <h3>Analisis Keuntungan</h3>
+                    <h3><i class="fas fa-chart-pie"></i> Analisis Keuntungan</h3>
                     <canvas id="profitAnalysisChart"></canvas>
                 </div>
             </div>
 
             <!-- Summary -->
             <div class="card">
-                <h3>Ringkasan Proyek</h3>
+                <h3><i class="fas fa-calculator"></i> Ringkasan Proyek</h3>
                 <div class="summary-grid">
-                    <div class="summary-item">
-                        <span class="label">Total Harga Real:</span>
-                        <span class="value" id="totalRealPrice">Rp 0</span>
+                    <div class="summary-item interactive">
+                        <span class="label"><i class="fas fa-money-bill-wave"></i> Total Harga Real</span>
+                        <span class="value" id="totalRealPrice">Rp 2.705.000</span>
                     </div>
-                    <div class="summary-item">
-                        <span class="label">Total Harga Markup:</span>
-                        <span class="value" id="totalMarkupPrice">Rp 0</span>
+                    <div class="summary-item interactive">
+                        <span class="label"><i class="fas fa-arrow-trend-up"></i> Total Harga Markup</span>
+                        <span class="value" id="totalMarkupPrice">Rp 3.518.250</span>
                     </div>
-                    <div class="summary-item">
-                        <span class="label">Total Harga Final:</span>
-                        <span class="value" id="totalFinalPrice">Rp 0</span>
+                    <div class="summary-item interactive">
+                        <span class="label"><i class="fas fa-receipt"></i> Total Harga Final</span>
+                        <span class="value" id="totalFinalPrice">Rp 4.045.988</span>
                     </div>
-                    <div class="summary-item">
-                        <span class="label">Total Keuntungan:</span>
-                        <span class="value" id="totalProfit">Rp 0</span>
+                    <div class="summary-item interactive">
+                        <span class="label"><i class="fas fa-piggy-bank"></i> Total Keuntungan</span>
+                        <span class="value" id="totalProfit">Rp 1.340.988</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Export/Import -->
+            <!-- Data Management -->
             <div class="card">
-                <h3>Data Management</h3>
+                <h3><i class="fas fa-database"></i> Data Management</h3>
                 <div class="data-management">
-                    <button id="exportData" class="btn btn-secondary">Export Data</button>
+                    <button id="exportData" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
                     <input type="file" id="importFile" accept=".json" style="display: none;">
-                    <button id="importData" class="btn btn-secondary">Import Data</button>
-                    <button id="clearData" class="btn btn-danger">Clear All Data</button>
+                    <button id="importData" class="btn btn-secondary">
+                        <i class="fas fa-upload"></i> Import Data
+                    </button>
+                    <button id="clearData" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Clear All Data
+                    </button>
+                    <button id="addSampleData" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Tambah Data Contoh
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Config -->
-    <script type="module" src="./firebase-config.js"></script>
-    <script type="module" src="./script.js"></script>
+    <!-- Floating Action Button -->
+    <div class="floating-action" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Initialize Charts
+        let priceChart = null;
+        let profitChart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Nala Aircon Modern UI loaded!');
+            initializeCharts();
+            animateElements();
+        });
+
+        function initializeCharts() {
+            // Price Comparison Chart
+            const priceCtx = document.getElementById('priceComparisonChart').getContext('2d');
+            priceChart = new Chart(priceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['AC Split 1 PK', 'Pipa Tembaga', 'Freon R32'],
+                    datasets: [
+                        {
+                            label: 'Harga Real',
+                            data: [2500000, 85000, 120000],
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        },
+                        {
+                            label: 'Harga Markup',
+                            data: [3250000, 106250, 162000],
+                            backgroundColor: 'rgba(74, 201, 255, 0.8)',
+                            borderColor: 'rgba(74, 201, 255, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: {
+                                family: 'Inter',
+                                size: 14,
+                                weight: '600'
+                            },
+                            bodyFont: {
+                                family: 'Inter',
+                                size: 12
+                            },
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': Rp ' + 
+                                           context.parsed.y.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(102, 126, 234, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11
+                                },
+                                callback: function(value) {
+                                    return 'Rp ' + value.toLocaleString('id-ID');
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Inter',
+                                    size: 11,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Profit Analysis Chart
+            const profitCtx = document.getElementById('profitAnalysisChart').getContext('2d');
+            profitChart = new Chart(profitCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Total Harga Real', 'Total Keuntungan'],
+                    datasets: [{
+                        data: [2705000, 1340988],
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(74, 201, 255, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(74, 201, 255, 1)'
+                        ],
+                        borderWidth: 3,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: 'Inter',
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: {
+                                family: 'Inter',
+                                size: 14,
+                                weight: '600'
+                            },
+                            bodyFont: {
+                                family: 'Inter',
+                                size: 12
+                            },
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': Rp ' + 
+                                           context.parsed.toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function animateElements() {
+            // Animate cards on load
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Animate summary items
+            const summaryItems = document.querySelectorAll('.summary-item');
+            summaryItems.forEach((item, index) => {
+                item.style.animationDelay = `${0.5 + index * 0.1}s`;
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Add interactivity to buttons
+        document.getElementById('addMaterial')?.addEventListener('click', function() {
+            showMessage('Material berhasil ditambahkan! 🎉', 'success');
+        });
+
+        document.getElementById('applyMargins')?.addEventListener('click', function() {
+            showMessage('Margin berhasil diterapkan ke semua material! ✨', 'success');
+        });
+
+        document.getElementById('exportData')?.addEventListener('click', function() {
+            showMessage('Data berhasil diekspor! 📄', 'success');
+        });
+
+        document.getElementById('clearData')?.addEventListener('click', function() {
+            if (confirm('Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan!')) {
+                showMessage('Semua data berhasil dihapus! 🗑️', 'info');
+            }
+        });
+
+        document.getElementById('addSampleData')?.addEventListener('click', function() {
+            showMessage('Data contoh berhasil ditambahkan! 🎯', 'success');
+        });
+
+        function showMessage(text, type = 'info') {
+            // Remove existing message
+            const existingMessage = document.getElementById('statusMessage');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.id = 'statusMessage';
+            
+            const icon = type === 'success' ? 'fas fa-check-circle' : 
+                        type === 'error' ? 'fas fa-exclamation-triangle' : 
+                        'fas fa-info-circle';
+            
+            message.innerHTML = `<i class="${icon}"></i> ${text}`;
+            
+            // Insert after header
+            const header = document.querySelector('.header');
+            header.parentNode.insertBefore(message, header.nextSibling);
+            
+            // Auto hide after 4 seconds
+            setTimeout(() => {
+                if (message) {
+                    message.style.opacity = '0';
+                    setTimeout(() => message.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // Add smooth hover effects to interactive elements
+        document.querySelectorAll('.btn, .summary-item, .card').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = this.style.transform || '';
+            });
+        });
+
+        // Add sample data
+        setTimeout(() => {
+            showMessage('Selamat datang di Nala Aircon Dashboard! 🎉', 'info');
+        }, 1000);
+    </script>
 </body>
 
 </html>
